@@ -37,14 +37,18 @@ local function toAngle(a) return Angle(a[1], a[2], a[3]) end
 
 __e2setcost(5)
 
---- Declare les gates du pont. Seules les gates dont vous etes proprietaire sont retenues. Renvoie le nombre de gates retenues.
+--- Declare les gates du pont, dans l'ordre : la premiere est l'entree, la deuxieme sa destination (le pont ne se declenche
+--- que si la premiere est ouverte sur la deuxieme). Si une gate n'est pas valide ou ne vous appartient pas, rien n'est declare.
+--- Renvoie le nombre de gates declarees.
 e2function number sgBridgeSetGates(array gates)
 	if not session(self) then return 0 end
 	local list = {}
 	for _, g in ipairs(gates) do
-		if isentity(g) and IsValid(g) and g.IsStargate and isOwner(self, g) then
-			list[#list + 1] = g
+		if not (isentity(g) and IsValid(g) and g.IsStargate and isOwner(self, g)) then
+			SGIB.SetGates(self.entity, self.player, {})
+			return 0
 		end
+		list[#list + 1] = g
 	end
 	return SGIB.SetGates(self.entity, self.player, list)
 end

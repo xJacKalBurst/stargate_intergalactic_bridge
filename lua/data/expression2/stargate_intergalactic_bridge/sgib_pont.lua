@@ -64,13 +64,11 @@ if (~Open & Open & State == 0 & N >= 2) {
 
 # Un joueur vient d'entrer dans G1 : il est stocke, la camera va devant la gate de destination
 if (sgBridgeClk()) {
-    if (State == 0 & N >= 2 & sgBridgeEntryGate() == GateEnts[1, entity]) {
+    if (State == 0 & N >= 2) {
         Step = 1
         State = 1
         T = curtime() + Hold
         camTo(2)
-    } else {
-        sgBridgeKill()
     }
 }
 

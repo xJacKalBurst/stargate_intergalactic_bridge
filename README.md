@@ -18,7 +18,7 @@ Les scripts fournis apparaissent dans l'éditeur E2, dossier `stargate_intergala
   (même position d'entrée, même vitesse, mêmes effets).
 - Urgence (puce supprimée, durée maximale dépassée, `sgBridgeKill`) : le joueur meurt, les gates du pont se ferment.
 
-## Fonctions E2
+## Fonctions E2 (v0.2 : la liste de sgBridgeSetGates est ordonnée, 1 = entrée, 2 = sa destination)
 | Fonction | Rôle |
 |---|---|
 | `sgBridgeSetGates(array)` | gates du pont (celles dont vous êtes propriétaire) ; renvoie le nombre retenu |

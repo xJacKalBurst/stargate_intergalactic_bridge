@@ -8,7 +8,7 @@
 	Le script decide de tout le reste (composition des gates, deplacement de la camera, moment de la sortie).
 
 	API (appelee par les extensions E2 / Starfall / E3) :
-		SGIB.SetGates(chip, owner, gates)       declare les gates du pont (tableau d'entites)
+		SGIB.SetGates(chip, owner, gates)       declare les gates du pont, dans l'ordre (1 = entree, 2 = sa destination)
 		SGIB.SetCamera(chip, pos, ang)          place la camera (et le corps) des joueurs stockes ; ang optionnel
 		SGIB.SetMaxHold(chip, secondes)         duree maximale de stockage avant urgence
 		SGIB.SetListener(chip, fn)              fn(joueur, gate) est appelee a chaque capture
@@ -39,6 +39,7 @@ local function newSession(chip, owner)
 		chip = chip,
 		owner = owner,
 		gates = {},          -- [gate] = true
+		list = {},           -- gates dans l'ordre du pont : [1] = gate d'entree, [2] = sa destination
 		held = {},           -- [joueur] = true
 		camPos = nil,
 		camAng = nil,
@@ -66,6 +67,7 @@ function SGIB.SetGates(chip, owner, gates)
 	local s = SGIB.GetSession(chip, owner)
 	if not s then return 0 end
 	s.gates = {}
+	s.list = {}
 	local n = 0
 	for _, g in ipairs(gates) do
 		if IsValid(g) and g.IsStargate then
@@ -75,6 +77,7 @@ function SGIB.SetGates(chip, owner, gates)
 			end
 			s.gates[g] = true
 			n = n + 1
+			s.list[n] = g
 		end
 	end
 	return n
@@ -241,7 +244,9 @@ local function intercept(flashMessage)
 		if not IsValid(target) then return end
 		local dir = (horizon:GetVelocity() - ply:GetVelocity()):GetNormalized()
 		if horizon:GetForward():DotProduct(dir) < 0 then return end
+		-- le pont ne s'applique que si la gate d'entree est ouverte sur la premiere destination du pont
 		local tgate = target:GetParent()
+		if session.list[1] ~= gate or session.list[2] ~= tgate then return end
 		if IsValid(tgate) and tgate.IsStargate and tgate:IsBlocked() then return end
 
 		-- position d'entree dans le repere de l'horizon, pour sortir plus tard au meme endroit
@@ -274,12 +279,17 @@ hook.Add("Lib.Teleport", "SGIB.Intercept", intercept("Lib.CalcView.TeleportEffec
 -- Sortie
 -- ============================================================================
 
+-- Horizon source (gate qui a compose) et horizon d'arrivee d'un lien ouvert dont exitGate est l'arrivee.
+-- Attention : l'horizon d'arrivee n'a pas de Target (seul l'horizon sortant en a un) ; la gate d'arrivee garde en revanche
+-- la gate qui l'appelle dans gate.Target (CAP : ActivateStargate, "e.Target = self.Entity").
 local function exitHorizons(exitGate)
 	if not IsValid(exitGate) then return end
-	local exitH = exitGate.EventHorizon
-	if not (IsValid(exitH) and exitH:IsOpen()) then return end
-	local src = exitH.Target
-	if not (IsValid(src) and src.Teleport and src.GetEntitiesForTeleport) then return end
+	local srcGate = exitGate.Target
+	if not (IsValid(srcGate) and srcGate.IsStargate and srcGate.IsOpen and exitGate.IsOpen) then return end
+	local src = srcGate.EventHorizon
+	if not (IsValid(src) and src.Teleport and src.GetEntitiesForTeleport and src:IsOpen()) then return end
+	local exitH = src.Target
+	if not (IsValid(exitH) and exitH:GetParent() == exitGate) then return end
 	return exitH, src
 end
 
