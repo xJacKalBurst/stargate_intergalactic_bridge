@@ -1,0 +1,8 @@
+"AddonInfo"
+{
+	"name"		"Stargate Intergalactic Bridge"
+	"version"	"0.1"
+	"up_date"	"2026-11-01"
+	"author_name"	"Evolution Addon Pack"
+	"info"		"Pont intergalactique pour CAP et EAP : stocke le joueur dans le reseau de stargates et pilote sa camera depuis Expression 2."
+}
