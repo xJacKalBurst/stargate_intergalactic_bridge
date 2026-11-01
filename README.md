@@ -1,5 +1,7 @@
 # Stargate Intergalactic Bridge
 
+Gére un pont intergalactique comme dans la série Stargate Atlantis, dans le jeu Garry's Mod, compatible des addons CAP et EAP (Au moins un est requis)
+
 Addon plug and play pour Garry's Mod (CAP et EAP, y compris mélangés). Il n'ajoute aucune entité : il fournit des
 fonctions que les puces appellent, et la logique du pont reste dans le script.
 
